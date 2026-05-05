@@ -22,14 +22,14 @@ Creates empty Markdown (`.md`) note files from a CSV file containing document *s
 
 ## create-subslug-folders.ps1
 
-Creates Obsidian folders from a CSV or text file containing *sub-slugs*.
+Creates Obsidian folders or empty Markdown notes from a CSV or text file containing *sub-slugs*.
 
 ### Purpose
 
-*   Split an existing numbered note/folder into lettered child folders
-*   One folder per sub-slug
+*   Split an existing numbered note/folder into lettered child folders or notes
+*   One folder or Markdown note per sub-slug
 *   Safe to re-run
-*   **Never modifies existing folders**
+*   **Never modifies existing folders or overwrites existing notes**
 
 ### Input File Requirements
 
@@ -54,7 +54,7 @@ The numeric prefix is treated as the root slug. In this example, the root slug i
 
 All non-empty rows must use the same numeric root. Rows with a different root are skipped as invalid.
 
-### Dry Run
+### Dry Run: Create Folders
 
 ```powershell
 .\scripts\create-subslug-folders.ps1 `
@@ -63,7 +63,7 @@ All non-empty rows must use the same numeric root. Rows with a different root ar
   -WhatIf
 ```
 
-### Create the Folders
+### Create Folders
 
 ```powershell
 .\scripts\create-subslug-folders.ps1 `
@@ -71,10 +71,36 @@ All non-empty rows must use the same numeric root. Rows with a different root ar
   -ParentDir "D:\YourObsidianVault\Notes\540-original-folder-name"
 ```
 
+### Dry Run: Create Markdown Notes
+
+```powershell
+.\scripts\create-subslug-folders.ps1 `
+  -InputFile .\data\540-subslugs.txt `
+  -ParentDir "D:\YourObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
+  -CreateIndex `
+  -AsMarkdownFiles `
+  -WhatIf
+```
+
+### Create Markdown Notes
+
+```powershell
+.\scripts\create-subslug-folders.ps1 `
+  -InputFile .\data\540-subslugs.txt `
+  -ParentDir "D:\YourObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
+  -CreateIndex `
+  -AsMarkdownFiles
+```
+
 ### Behavior Details
 
-*   Creates sub-slug folders under the specified parent directory
-*   Skips folders that already exist
+*   Creates sub-slug folders under the specified parent directory by default
+*   Creates empty `.md` files instead when `-AsMarkdownFiles` is supplied
+*   Creates files under `ParentDir\GroupSlug` when `-GroupSlug` is supplied
+*   Creates an `index.md` parent note when `-CreateIndex` is supplied
+*   Skips folders or files that already exist
 *   Skips blank rows
 *   Skips invalid rows
 *   Skips rows whose numeric root does not match the first valid slug
@@ -138,7 +164,8 @@ The number of numbered content sections must exactly match the number of slugs. 
 .\scripts\split-content-to-notes.ps1 `
   -ContentFile .\data\540-content.txt `
   -SlugFile .\data\540-subslugs.txt `
-  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name" `
+  -OutputDir "D:\YourObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
   -WhatIf
 ```
 
@@ -148,7 +175,8 @@ The number of numbered content sections must exactly match the number of slugs. 
 .\scripts\split-content-to-notes.ps1 `
   -ContentFile .\data\540-content.txt `
   -SlugFile .\data\540-subslugs.txt `
-  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name"
+  -OutputDir "D:\YourObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options"
 ```
 
 ### Overwrite Existing Notes
@@ -157,7 +185,8 @@ The number of numbered content sections must exactly match the number of slugs. 
 .\scripts\split-content-to-notes.ps1 `
   -ContentFile .\data\540-content.txt `
   -SlugFile .\data\540-subslugs.txt `
-  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name" `
+  -OutputDir "D:\YourObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
   -Overwrite
 ```
 
@@ -166,6 +195,7 @@ The number of numbered content sections must exactly match the number of slugs. 
 *   Converts each numbered section heading from `## 1. Title` to `# Title`
 *   Preserves the remaining section headings and content
 *   Creates one `.md` file per slug
+*   Writes files under `OutputDir\GroupSlug` when `-GroupSlug` is supplied
 *   Skips existing files unless `-Overwrite` is supplied
 *   Stops without writing if section count and slug count do not match
 *   Supports PowerShell `-WhatIf`

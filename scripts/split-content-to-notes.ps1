@@ -23,6 +23,10 @@ with a 'slug' header.
 .PARAMETER OutputDir
 Directory where Markdown notes will be written.
 
+.PARAMETER GroupSlug
+Optional child folder under OutputDir where Markdown notes will be written,
+such as 540-data-loading-options.
+
 .PARAMETER Overwrite
 Replace existing Markdown files.
 
@@ -30,14 +34,16 @@ Replace existing Markdown files.
 .\split-content-to-notes.ps1 `
   -ContentFile .\data\540-content.txt `
   -SlugFile .\data\540-subslugs.txt `
-  -OutputDir "D:\ObsidianVault\Notes\540-original-folder-name" `
+  -OutputDir "D:\ObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
   -WhatIf
 
 .EXAMPLE
 .\split-content-to-notes.ps1 `
   -ContentFile .\data\540-content.txt `
   -SlugFile .\data\540-subslugs.txt `
-  -OutputDir "D:\ObsidianVault\Notes\540-original-folder-name" `
+  -OutputDir "D:\ObsidianVault\Notes" `
+  -GroupSlug "540-data-loading-options" `
   -Overwrite
 #>
 
@@ -53,6 +59,8 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string]$OutputDir,
+
+    [string]$GroupSlug,
 
     [switch]$Overwrite
 )
@@ -103,6 +111,10 @@ function Convert-SectionToNoteContent {
 
 $content = Get-Content -Raw $ContentFile
 
+if ([string]::IsNullOrWhiteSpace($content)) {
+    throw "Content file is empty: $ContentFile"
+}
+
 $sourcesMatch = [regex]::Match($content, "(?im)^Sources:\s*$")
 if ($sourcesMatch.Success) {
     $content = $content.Substring(0, $sourcesMatch.Index)
@@ -128,9 +140,16 @@ if ($sections.Count -ne $slugs.Count) {
     throw "Section count ($($sections.Count)) does not match slug count ($($slugs.Count)). No files were written."
 }
 
-if (-not (Test-Path $OutputDir)) {
-    if ($PSCmdlet.ShouldProcess($OutputDir, "Create output directory")) {
-        New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+$targetDir = if ($GroupSlug) {
+    Join-Path $OutputDir $GroupSlug
+}
+else {
+    $OutputDir
+}
+
+if (-not (Test-Path $targetDir)) {
+    if ($PSCmdlet.ShouldProcess($targetDir, "Create output directory")) {
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
     }
 }
 
@@ -140,7 +159,7 @@ $skippedExisting = 0
 
 for ($i = 0; $i -lt $sections.Count; $i++) {
     $slug = $slugs[$i]
-    $filePath = Join-Path $OutputDir ($slug + ".md")
+    $filePath = Join-Path $targetDir ($slug + ".md")
     $noteContent = Convert-SectionToNoteContent -Section $sections[$i]
 
     if ((Test-Path $filePath) -and -not $Overwrite) {
@@ -164,6 +183,7 @@ for ($i = 0; $i -lt $sections.Count; $i++) {
 
 Write-Host "Sections           : $($sections.Count)"
 Write-Host "Slugs              : $($slugs.Count)"
+Write-Host "Target directory   : $targetDir"
 Write-Host "Created            : $created"
 Write-Host "Updated            : $updated"
 Write-Host "Skipped (existing) : $skippedExisting"
