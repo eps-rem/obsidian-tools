@@ -314,14 +314,31 @@ Shows what would be created without creating files:
 *   ✅ Creates empty `.md` files only
 *   ✅ Skips files that already exist
 *   ✅ Safe to re‑run multiple times
-*   ✅ Handles duplicate slugs gracefully
+*   ✅ Handles duplicate slugs as grouped notes
 *   ❌ Never modifies or overwrites existing content
+
+Duplicate slugs are handled automatically. A slug that appears once creates:
+
+```text
+020-schedule-setup-mode.md
+```
+
+A slug that appears multiple times creates:
+
+```text
+020-schedule-setup-mode/
+├── index.md
+├── 020a-schedule-setup-mode.md
+├── 020b-schedule-setup-mode.md
+└── 020c-schedule-setup-mode.md
+```
 
 At completion, the script reports:
 
 *   Number of files created
 *   Number skipped due to existing files
 *   Number skipped due to missing or blank slugs
+*   Number skipped due to invalid duplicate groups
 
 ***
 

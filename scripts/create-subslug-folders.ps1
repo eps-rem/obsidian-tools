@@ -97,6 +97,7 @@ if (-not (Test-Path $targetDir)) {
 }
 
 $created = 0
+$wouldCreate = 0
 $skippedExisting = 0
 $skippedEmpty = 0
 $skippedInvalid = 0
@@ -145,6 +146,8 @@ Get-SlugsFromInputFile -Path $InputFile | ForEach-Object {
     $action = if ($AsMarkdownFiles) { "Create empty Markdown note" } else { "Create sub-slug folder" }
     $itemType = if ($AsMarkdownFiles) { "File" } else { "Directory" }
 
+    $wouldCreate++
+
     if ($PSCmdlet.ShouldProcess($targetPath, $action)) {
         New-Item -ItemType $itemType -Path $targetPath | Out-Null
         $created++
@@ -158,6 +161,8 @@ if ($AsMarkdownFiles -and $CreateIndex) {
         $skippedExisting++
     }
     else {
+        $wouldCreate++
+
         $title = if ($GroupSlug) { $GroupSlug } else { $rootSlug }
         $indexContent = "# $title" + [Environment]::NewLine + [Environment]::NewLine
 
@@ -192,6 +197,7 @@ if ($AsMarkdownFiles -and $CreateIndex) {
 Write-Host "Root slug          : $rootSlug"
 Write-Host "Mode               : $(if ($AsMarkdownFiles) { "Markdown files" } else { "Folders" })"
 Write-Host "Target directory   : $targetDir"
+Write-Host "Would create       : $wouldCreate"
 Write-Host "Created            : $created"
 Write-Host "Skipped (existing) : $skippedExisting"
 Write-Host "Skipped (empty)    : $skippedEmpty"
