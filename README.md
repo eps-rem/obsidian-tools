@@ -202,6 +202,92 @@ The number of numbered content sections must exactly match the number of slugs. 
 
 ***
 
+## split-content-to-substubs.ps1
+
+Splits a Markdown content file into existing sub-stub notes inside a grouped note folder.
+
+### Purpose
+
+*   Convert one generated write-up into multiple sub-stub notes
+*   Use the first line of each section as the destination filename
+*   Infer the grouped folder from a lettered marker such as `600a-task-routes`
+*   Fill existing empty sub-stub notes
+*   Safe by default
+*   Supports `-WhatIf`
+
+### Input File Requirements
+
+The content file should contain sections separated by horizontal rules. Each section must start with the destination filename without `.md`:
+
+```markdown
+600a-task-routes
+# Task Routes
+
+...
+
+---
+
+600b-task-routes
+# Task Routes
+
+...
+
+---
+
+index
+## Summary
+
+...
+```
+
+Valid marker lines are:
+
+*   `index`
+*   A lettered sub-stub slug like `600a-task-routes`
+
+The group folder slug itself, such as `600-task-routes`, is not valid as a section marker. Use the exact lettered filename, such as `600b-task-routes`, so mistakes are caught before files are written.
+
+### Dry Run
+
+```powershell
+.\scripts\split-content-to-substubs.ps1 `
+  -ContentFile .\examples\sub-stub-data-example.md `
+  -ParentDir "D:\YourObsidianVault\Notes\PrintFlow 4D Scheduling Configurations" `
+  -WhatIf
+```
+
+### Fill Empty Sub-Stubs
+
+```powershell
+.\scripts\split-content-to-substubs.ps1 `
+  -ContentFile .\examples\sub-stub-data-example.md `
+  -ParentDir "D:\YourObsidianVault\Notes\PrintFlow 4D Scheduling Configurations"
+```
+
+### Overwrite Existing Sub-Stubs
+
+```powershell
+.\scripts\split-content-to-substubs.ps1 `
+  -ContentFile .\examples\sub-stub-data-example.md `
+  -ParentDir "D:\YourObsidianVault\Notes\PrintFlow 4D Scheduling Configurations" `
+  -Overwrite
+```
+
+### Behavior Details
+
+*   Removes the marker line from the written Markdown file
+*   Preserves the remaining Markdown content
+*   Creates or uses the implied group folder, such as `600-task-routes`
+*   Writes `index` to `index.md`
+*   Writes `600a-task-routes` to `600a-task-routes.md`
+*   Creates the target folder if needed
+*   Fills existing empty files
+*   Skips existing non-empty files unless `-Overwrite` is supplied
+*   Stops without writing if duplicate markers are found
+*   Supports PowerShell `-WhatIf`
+
+***
+
 ## repair-md-mojibake-arrows.ps1
 
 Repairs mojibake arrow and dash sequences in Markdown files.
