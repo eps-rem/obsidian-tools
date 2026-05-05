@@ -1,0 +1,12 @@
+# Real input data (do not commit actual slug files)
+data/*.csv
+data/*.txt
+
+# Logs or temporary files
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
