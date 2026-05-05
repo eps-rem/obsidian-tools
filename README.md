@@ -20,6 +20,70 @@ Creates empty Markdown (`.md`) note files from a CSV file containing document *s
 
 ***
 
+## create-subslug-folders.ps1
+
+Creates Obsidian folders from a CSV or text file containing *sub-slugs*.
+
+### Purpose
+
+*   Split an existing numbered note/folder into lettered child folders
+*   One folder per sub-slug
+*   Safe to re-run
+*   **Never modifies existing folders**
+
+### Input File Requirements
+
+The input file may be either:
+
+*   A CSV with a header column named `slug`
+*   A TXT file with one slug per line
+
+A TXT file may optionally include `slug` as the first line.
+
+### Example Input
+
+```text
+slug
+540a-ignore-planned-task-setup-duration
+540b-ignore-jobs-with-no-form
+540c-reconsider-task-choice-at-end-of-shut
+540d-drag-drop-between-preferred-sites-allowed
+```
+
+The numeric prefix is treated as the root slug. In this example, the root slug is `540`.
+
+All non-empty rows must use the same numeric root. Rows with a different root are skipped as invalid.
+
+### Dry Run
+
+```powershell
+.\scripts\create-subslug-folders.ps1 `
+  -InputFile .\data\540-subslugs.txt `
+  -ParentDir "D:\YourObsidianVault\Notes\540-original-folder-name" `
+  -WhatIf
+```
+
+### Create the Folders
+
+```powershell
+.\scripts\create-subslug-folders.ps1 `
+  -InputFile .\data\540-subslugs.txt `
+  -ParentDir "D:\YourObsidianVault\Notes\540-original-folder-name"
+```
+
+### Behavior Details
+
+*   Creates sub-slug folders under the specified parent directory
+*   Skips folders that already exist
+*   Skips blank rows
+*   Skips invalid rows
+*   Skips rows whose numeric root does not match the first valid slug
+*   Supports PowerShell `-WhatIf`
+
+This nested structure is usually compatible with static-site or HTML publishing tools because the folder names remain stable, URL-safe slugs. The parent folder also gives site generators a natural hierarchy for navigation.
+
+***
+
 ## Input File Requirements
 
 The input file **must be a CSV** with a header column named `slug`.
