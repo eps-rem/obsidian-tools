@@ -202,6 +202,46 @@ The number of numbered content sections must exactly match the number of slugs. 
 
 ***
 
+## repair-md-mojibake-arrows.ps1
+
+Repairs mojibake arrow and dash sequences in Markdown files.
+
+### Purpose
+
+*   Recursively scan an Obsidian folder for Markdown files
+*   Replace common mojibake arrows and dashes with ASCII-safe text
+*   Use `->`, `<-`, `-`, and related plain-text equivalents
+*   Support `-WhatIf`
+
+### Example
+
+```powershell
+.\scripts\repair-md-mojibake-arrows.ps1 `
+  -RootDir "D:\YourObsidianVault\Notes" `
+  -WhatIf
+```
+
+### Create the Repairs
+
+```powershell
+.\scripts\repair-md-mojibake-arrows.ps1 `
+  -RootDir "D:\YourObsidianVault\Notes"
+```
+
+### Behavior Details
+
+The script currently replaces common mojibake forms of:
+
+*   Right arrows -> `->`
+*   Left arrows -> `<-`
+*   Left-right arrows -> `<->`
+*   Em/en dashes -> `-`
+*   Smart apostrophes -> `'`
+
+It only scans `.md` files and only writes files where replacements are found.
+
+***
+
 ## Input File Requirements
 
 The input file **must be a CSV** with a header column named `slug`.
