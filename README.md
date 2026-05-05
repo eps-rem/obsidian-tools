@@ -84,6 +84,94 @@ This nested structure is usually compatible with static-site or HTML publishing 
 
 ***
 
+## split-content-to-notes.ps1
+
+Splits a large Markdown or text content dump into individual Obsidian Markdown notes.
+
+### Purpose
+
+*   Convert one large generated content block into many slug-named notes
+*   Pair numbered content sections to a slug file by order
+*   Ignore source links and trailing reference material
+*   Safe by default
+*   Supports `-WhatIf`
+
+### Input File Requirements
+
+This script uses two input files:
+
+*   `ContentFile` -> a `.txt` or `.md` file containing numbered Markdown sections
+*   `SlugFile` -> a `.csv` or `.txt` file containing one slug per note
+
+The content file should contain sections like:
+
+```markdown
+## 1. Ignore Planned Task Setup Duration
+
+## Description
+
+...
+
+---
+
+## 2. Ignore Jobs with No Form
+```
+
+The script ignores:
+
+*   Introductory text before the first numbered heading
+*   Horizontal rules outside real numbered sections
+*   Everything from a line containing `Sources:` onward
+
+The slug file may be:
+
+*   A CSV with a `slug` column
+*   A TXT file with one slug per line
+
+TXT files may optionally include `slug` as the first line.
+
+The number of numbered content sections must exactly match the number of slugs. If the counts differ, the script stops without writing files.
+
+### Dry Run
+
+```powershell
+.\scripts\split-content-to-notes.ps1 `
+  -ContentFile .\data\540-content.txt `
+  -SlugFile .\data\540-subslugs.txt `
+  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name" `
+  -WhatIf
+```
+
+### Create Missing Notes
+
+```powershell
+.\scripts\split-content-to-notes.ps1 `
+  -ContentFile .\data\540-content.txt `
+  -SlugFile .\data\540-subslugs.txt `
+  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name"
+```
+
+### Overwrite Existing Notes
+
+```powershell
+.\scripts\split-content-to-notes.ps1 `
+  -ContentFile .\data\540-content.txt `
+  -SlugFile .\data\540-subslugs.txt `
+  -OutputDir "D:\YourObsidianVault\Notes\540-original-folder-name" `
+  -Overwrite
+```
+
+### Behavior Details
+
+*   Converts each numbered section heading from `## 1. Title` to `# Title`
+*   Preserves the remaining section headings and content
+*   Creates one `.md` file per slug
+*   Skips existing files unless `-Overwrite` is supplied
+*   Stops without writing if section count and slug count do not match
+*   Supports PowerShell `-WhatIf`
+
+***
+
 ## Input File Requirements
 
 The input file **must be a CSV** with a header column named `slug`.
